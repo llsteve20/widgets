@@ -5,7 +5,6 @@ const Search = () => {
     const [term, setTerm] = useState('Dogs');
     const [results, setResults] = useState([]);
     
-console.log(results);
 
     useEffect( () => {
         const search = async () => {
@@ -21,8 +20,36 @@ console.log(results);
             setResults(data.query.search);
         };
 
-        search();
+        if(term && !results.length){
+            search();
+        } else {
+            const timeOutId = setTimeout(()=>{
+                if(term) search();
+            }, 1000)
+    
+            return () =>{
+                clearTimeout(timeOutId);
+            };
+        }
+        
+
     }, [term]);
+
+    const renderedResults = results.map(result => {
+        return (
+            <div className="item" key={result.pageid}>
+                <div className="right floated content">
+                    <a className="ui button" href= {`https://en.wikipedia.org?curid=${result.pageid}`} >Go</a>
+                </div>
+                <div className="content">
+                    <div className="header">
+                        {result.title}
+                    </div>
+                    <span dangerouslySetInnerHTML={{ __html: result.snippet }}></span>
+                </div>
+            </div>
+        )
+    });
 
     return (
         <div>
@@ -35,6 +62,9 @@ console.log(results);
                         className="input" 
                     />
                 </div>
+            </div>
+            <div className="ui celled list">
+                {renderedResults}
             </div>
         </div>
     );
